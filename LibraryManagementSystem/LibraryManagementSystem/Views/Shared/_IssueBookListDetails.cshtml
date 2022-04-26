@@ -1,0 +1,69 @@
+﻿@model LibraryManagementSystem1.Models.BooksModel
+@using LibraryManagementSystem1.Models;
+@{
+    ViewBag.Title = "_IssueBookListDetails";
+}
+
+@{ if (Model.GetIssueBookList != null)
+    {
+        foreach (var i in Model.GetIssueBookList)
+        {
+            @Html.HiddenFor(exp => exp.StudentId, new { })
+            @Html.HiddenFor(exp => exp.IssueDate, new { })
+            <tr scope="row" class="">
+                <td>
+                    @i.BookId
+                </td>
+                <td>@i.BookName</td>
+                <td>
+                    @i.BookCategoryName
+                </td>
+                <td>@i.BookPublisherName</td>
+                <td>@i.BookCount</td>
+                <td>@i.StudentId</td>
+            </tr>
+        }
+    }
+}
+<style>
+
+    .editBtn img, .deleteBtn img {
+        transition: all 0.1s ease;
+        cursor: pointer;
+    }
+
+        .editBtn img:hover, .deleteBtn img:hover {
+            transform: scale(1.1);
+        }
+
+    .block-27 ul li {
+        transition: all 0.1s ease;
+        cursor: pointer;
+    }
+
+        .block-27 ul li:hover {
+            transform: scale(1.1);
+        }
+
+    #pre:hover {
+        cursor: pointer;
+    }
+
+    #btnPage:hover {
+        cursor: pointer;
+    }
+
+    #next:hover {
+        cursor: pointer;
+    }
+
+    .pagination {
+        user-select: none;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+</style>
+
+

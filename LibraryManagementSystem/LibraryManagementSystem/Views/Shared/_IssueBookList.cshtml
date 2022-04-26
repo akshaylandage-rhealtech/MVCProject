@@ -1,0 +1,103 @@
+﻿@model LibraryManagementSystem1.Models.BooksModel
+@using LibraryManagementSystem1.Models;
+@{
+    ViewBag.Title = "_IssueBookList";
+}
+
+
+<style>
+
+    .selectBtn, .insertBtn, .editBtn, .deleteBtn:hover {
+        cursor: pointer;
+    }
+</style>
+
+
+<div style="padding-left:20px;padding-right:20px;">
+    <div class="table-responsive custom-table-responsive">
+        <table id="table" class="table">
+            <thead style="width:auto;">
+                <tr class="">
+                    <th scope="col">Book Id</th>
+                    <th scope="col">Book Name</th>
+                    <th scope="col">Book Category</th>
+                    <th scope="col">Book Publisher</th>                    
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="preList">
+                @foreach (var i in Model.GetBooks)
+                {
+                <tr scope="row" class="">
+
+                    <td id="BookId">@Html.DisplayFor(exp => i.BookId)</td>
+                    <td id="BookName">@Html.DisplayFor(exp => i.BookName)</td>
+                    <td id="BookCategory">@Html.DisplayFor(exp => i.BookCategoryName)</td>                    
+                    <td id="BookPublisher">@Html.DisplayFor(exp => i.BookPublisherName)</td>                    
+                    
+                    <td>
+                        <a style="color:blue;"
+                           class="selectBtn"
+                           id="selectBtn"
+                           data-id="@i.BookId"
+                           data-name="@i.BookName"
+                           data-category="@i.BookCategoryName"
+                           data-publisher="@i.BookPublisherName"
+                           data-categoryId="@i.BookCategoryId"
+                           data-publisherId="@i.BookPublisherId"
+                           data-quantity="@i.BookQuantity"
+                           data-bookCount="1"
+                           data-dismiss="modal">
+                            Select
+                        </a>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<style>
+
+    .editBtn img, .deleteBtn img {
+        transition: all 0.1s ease;
+        cursor: pointer;
+    }
+
+        .editBtn img:hover, .deleteBtn img:hover {
+            transform: scale(1.1);
+        }
+
+    .block-27 ul li {
+        transition: all 0.1s ease;
+        cursor: pointer;
+    }
+
+        .block-27 ul li:hover {
+            transform: scale(1.1);
+        }
+
+    #pre:hover {
+        cursor: pointer;
+    }
+
+    #btnPage:hover {
+        cursor: pointer;
+    }
+
+    #next:hover {
+        cursor: pointer;
+    }
+
+    .pagination {
+        user-select: none;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+</style>
+
+

@@ -1,0 +1,148 @@
+﻿
+@model LibraryManagementSystem1.Models.BooksModel
+@using LibraryManagementSystem1.Models;
+
+@{
+    ViewBag.Title = "InsertBookAction";
+}
+
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<link href="~/Content/bestStyle.css" rel="stylesheet" />
+<link href="~/Content/down1.css" rel="stylesheet" />
+
+
+<script>
+
+    $(document).ready(function () {
+
+
+        $("#Insert").click(function () {
+            InsertBookMethod();
+        });
+
+        $("#insertResetBtn").click(function () {
+            $("#searchForm")[0].reset()
+        });
+
+        $("#Update").click(function () {
+            InsertBookMethod();
+        });
+
+        function InsertBookMethod() {
+            
+            $.ajax({
+                url: "/Book/InsertBookAction",
+                method: "POST",
+                data: $("#insertForm").serialize(),
+                success: function (data) {
+                    if ($("#BookId").val() != 0) {
+                        alert("Book Update Successfully...");
+                    }
+                    else {
+                        alert("Book Added Successfully...");
+                    }
+                },
+            });
+        }
+    });
+</script>
+<center style="margin-top:-10px">
+    <h2><b>Add Book</b></h2>
+</center>
+<form id="insertForm" method="POST">
+    <center>
+        <table class="searchTable" style="margin-bottom:10px;">
+            <tr>
+                <td>
+                    <h3>Book Name&nbsp;&nbsp;</h3>
+                </td>
+                <td>
+                    @Html.TextBoxFor(exp => exp.BookName, null, new { @id = "BookName", @Value=Model.BookName, @placeholder = "Book Name", @class = "textbox btn btn-round btn-outline btn-fb text-left w-100 mb-3" })
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <h3>Book Category&nbsp;&nbsp;</h3>
+                </td>
+                <td>
+                    @if (Model.BookCategoryName != null)
+                    {
+                        @Html.DropDownListFor(exp => exp.BookCategoryId, new SelectList(Model.GetCategories, "BookCategoryId", "BookCategory"), Model.BookCategoryName, new { @id = "DropDownCategory", @class = "btn btn-round btn-outline btn-fb text-left w-100 mb-3" })
+                    }
+                    else
+                    {
+                        @Html.DropDownListFor(exp => exp.BookCategoryId, new SelectList(Model.GetCategories, "BookCategoryId", "BookCategory"), "Select Category", new { @id = "DropDownCategory", @class = "btn btn-round btn-outline btn-fb text-left w-100 mb-3" })
+
+                    }
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <h3>Book Publisher&nbsp;&nbsp;</h3>
+                </td>
+                <td>
+                    @if (Model.BookCategoryName != null)
+                    {
+                        @Html.DropDownListFor(exp => exp.BookPublisherId, new SelectList(Model.GetPublishers, "BookPublisherId", "BookPublisher"), Model.BookPublisherName, new { @id = "DropDownPublisher", @class = "btn btn-round btn-outline btn-fb text-left w-100 mb-3" })
+                    }
+                    else
+                    {
+                        @Html.DropDownListFor(exp => exp.BookPublisherId, new SelectList(Model.GetPublishers, "BookPublisherId", "BookPublisher"), "Select Publisher", new { @id = "DropDownPublisher", @class = "btn btn-round btn-outline btn-fb text-left w-100 mb-3" })
+
+                    }
+                    </td>
+            </tr>
+            <tr>
+                <td>
+                    <h3>Book Quantity&nbsp;&nbsp;</h3>
+                </td>
+                <td>
+                    @Html.TextBoxFor(exp => exp.BookQuantity, null, new { @type = "number", @id = "BookQuantity", @placeholder = "Book Quantity", @class = "textbox btn btn-round btn-outline btn-fb text-left w-100 mb-3" })
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <h3>Is Active&nbsp;&nbsp;</h3>
+                </td>
+                <td>
+                    
+                    <label class="custom-control overflow-checkbox">
+                        @Html.CheckBoxFor(exe => exe.IsActive, new { @class = "overflow-control-input", @checked = "true" })
+                        <span class="overflow-control-indicator"></span>
+                        <span class="overflow-control-description">IsActive</span>
+                    </label>
+
+                </td>
+                <td>
+                    @Html.HiddenFor(exp => exp.BookId, new { })
+                </td>
+            </tr>
+        </table>
+        <div>
+            <br />
+            <table>
+                <tr>
+                    @if (Model.ButtonName != "Update")
+                    {
+                        <td style="text-align:right;">
+                            <button type="button" style="margin:10px 0;padding:10px;width:100%;" id="insertResetBtn" class="insertResetBtn btn btn-primary btn-round">Reset</button>
+                        </td>
+                    }
+                    <td style="padding:10px;">
+                        <button type="submit" style="margin:10px 0;padding:10px;width:100%;" value="@Model.ButtonName" id="@Model.ButtonName" class="insertBtn btn btn-primary btn-round">
+                            @Model.ButtonName
+                        </button>
+                    </td>
+                    <td>
+                        <a id="cancelBtn" style="margin:10px 0;padding:10px;width:100%;" class="btn btn-primary btn-round" href="@Url.Action("Index","Book",new {})">Cancel</a>
+                    </td>
+                </tr>
+            </table>
+
+
+        </div>
+    </center>
+</form>
+
+

@@ -1,0 +1,104 @@
+﻿@model LibraryManagementSystem1.Models.BooksModel
+@using LibraryManagementSystem1.Models;
+@{
+    ViewBag.Title = "_BookListPaging";
+}
+
+
+<style>
+
+    .insertBtn, .editBtn, .deleteBtn:hover {
+        cursor: pointer;
+    }
+</style>
+
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<link href="~/Content/bestStyle.css" rel="stylesheet" />
+<link href="~/Content/down1.css" rel="stylesheet" />
+
+
+<form id="insertForm" method="POST">
+    <table id="popupTable">
+        <tr>
+            <td>
+                Book Name:
+            </td>
+
+            <td>
+                @Html.TextBoxFor(exp => exp.BookName, null, new { @id = "InsertBookNameTxt", @placeholder = "Book Name", @class = "textbox btn btn-round btn-outline btn-fb text-left w-100 mb-3" })
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Book Category:
+            </td>
+
+            <td>
+                @if (Model.BookCategoryName != null)
+                {
+                    @Html.DropDownListFor(exp => exp.BookCategoryId,
+                         new SelectList(Model.GetCategories, "BookCategoryId", "BookCategory"),
+
+                              new { @id = "InsertBookCategoryTxt", @class = "DropDownCategory btn btn-round btn-outline btn-fb text-left w-100 mb-3" })
+                }
+                else
+                {
+                    @Html.DropDownListFor(exp => exp.BookCategoryId,
+                         new SelectList(Model.GetCategories, "BookCategoryId", "BookCategory"),
+                         "Select Category", new { @id = "InsertBookCategoryTxt", @class = "DropDownCategory btn btn-round btn-outline btn-fb text-left w-100 mb-3" })
+                }
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Book Publisher:
+            </td>
+            <td>
+                @if (Model.BookPublisherName != null)
+                {
+                    @Html.DropDownListFor(exp => exp.BookPublisherId,
+                        new SelectList(Model.GetPublishers, "BookPublisherId", "BookPublisher"),
+
+                        new { @id = "InsertBookPublisherTxt", @class = "DropDownPublisher btn btn-round btn-outline btn-fb text-left w-100 mb-3" })
+                }
+                else
+                {
+                    @Html.DropDownListFor(exp => exp.BookPublisherId,
+                        new SelectList(Model.GetPublishers, "BookPublisherId", "BookPublisher"),
+                        "Select Publisher",
+                        new { @id = "InsertBookPublisherTxt", @class = "DropDownPublisher btn btn-round btn-outline btn-fb text-left w-100 mb-3" })
+                }
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Book Quantity:
+            </td>
+            <td>
+                @Html.TextBoxFor(exp => exp.BookQuantity, null, new { @type = "number", @id = "InsertBookQuantityTxt", @placeholder = "Book Quantity", @class = "textbox btn btn-round btn-outline btn-fb text-left w-100 mb-3" })
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Is Active:
+            </td>
+            <td>
+
+                <label class="custom-control overflow-checkbox">
+                    @Html.CheckBoxFor(exe => exe.IsActive, new { @id = "InsertIsActiveTxt", @class = "overflow-control-input", @checked = "True" })
+                    <span class="overflow-control-indicator"></span>
+                    <span class="overflow-control-description">IsActive</span>
+                </label>
+
+            </td>
+            <td>
+                @Html.HiddenFor(exp => exp.BookId, new { @id = "InsertBookIdTxt" })
+            </td>
+        </tr>
+    </table>
+</form>
+
+
+
+
+

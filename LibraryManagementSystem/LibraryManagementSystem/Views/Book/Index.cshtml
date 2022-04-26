@@ -1,0 +1,274 @@
+﻿@model LibraryManagementSystem1.Models.BooksModel
+@using LibraryManagementSystem1.Models;
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<link href="~/Content/down.css" rel="stylesheet" />
+<link href="~/Content/down1.css" rel="stylesheet" />
+
+<style>
+    #popupTable td {
+        padding-left: 10px;
+    }
+
+    .center1 {
+        margin: auto;
+        width: 50%;
+        border: 3px solid green;
+        padding: 10px;
+    }
+</style>
+
+@*Popup for Delete*@
+<div class="container">
+    <div class="modal" id="deleteModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Delete Book</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <div class="modal-body">
+                    <table id="popupTable">
+                        <tr>
+                            <td>
+                                Book Id:
+                            </td>
+                            <td>
+                                <h3 id="DeleteBookIdTxt"></h3>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Book Name:
+                            </td>
+                            <td>
+                                <h3 id="DeleteBookNameTxt"></h3>
+                            </td>
+                        </tr>
+                    </table>
+                    <h2 style="padding-left:10px;"><b>You want to delete this book?</b></h2>
+                </div>
+                <div class="modal-footer">
+                    <div class="float-left">
+                        <button type="button" class="btn btn-round btn-danger" data-dismiss="modal">Close</button>
+                        <button type="button" class="deleteConfirmBtn btn btn-round btn-danger" data-dismiss="modal">Confirm</button>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@*Popup for Edit and Insert*@
+<div class="container">
+    <div class="modal" id="editModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Insert Book</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <center>
+                    <div class="modal-body">
+                        @Html.Partial("_AddUpdatePopup")
+                    </div>
+                </center>
+
+                <div class="modal-footer">
+                    <div class="float-left">
+                        <button type="button" class="btn btn-round btn-danger" data-dismiss="modal">Close</button>
+                        <button type="submit" style="justify-items:center;" class="insertConfirmBtn btn btn-primary btn-round" data-dismiss="modal">
+                            <p id="buttonTxt" style="margin: auto;"></p>
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        getSearchResult();
+
+        $(document).on("click", ".deleteBtn", function () {
+            $("#DeleteBookIdTxt").text($(this).attr("data-id"));
+            $("#DeleteBookNameTxt").text($(this).attr("data-name"));
+        })
+        $(document).on("click", ".deleteConfirmBtn", function () {
+            var ID = parseInt($("#DeleteBookIdTxt").text());
+
+            $.ajax({
+                url: "/Book/DeleteBookAction",
+                method: "POST",
+                data: { id: ID },
+                success: function (data) {
+                    getSearchResult();
+                }
+            });
+        })
+        $(document).on("click", ".insertBtn", function () {
+            $("#insertForm")[0].reset();
+            $("#InsertBookIdTxt").val(0);
+            $("#buttonTxt").text("Add");
+            $("#InsertIsActiveTxt").attr("checked", true);
+        })
+
+        $(document).on("click", ".insertConfirmBtn", function () {
+            $.ajax({
+                url: "/Book/InsertBookAction",
+                method: "POST",
+                data: $("#insertForm").serialize(),
+                success: function (data) {
+                    getSearchResult();
+                },
+            });
+        })
+
+        $(document).on("click", ".editBtn", function () {
+
+            $("#buttonTxt").text("Update");
+            $("#InsertBookIdTxt").val(parseInt($(this).attr("data-id")));
+            $("#InsertBookNameTxt").val($(this).attr("data-name"));
+            $("#InsertBookCategoryTxt").val($(this).attr("data-category"));
+            $("#InsertBookPublisherTxt").val($(this).attr("data-publisher"));
+            $("#InsertBookQuantityTxt").val(parseInt($(this).attr("data-quantity")));
+            $("#InsertIsActiveTxt").attr("checked", $(this).attr("data-isActive"));
+            $("#insertConfirmBtn").text("Update");
+        })
+
+
+
+        $("#searchBtn").click(function () {
+
+            var multiCategoryStr = "";
+            for (var key in $('#DropDownCategory').val()) {
+                multiCategoryStr += $('#DropDownCategory').val()[key]+",";
+            }
+           
+            $("#multiCategoryStr").val(multiCategoryStr.replace(/,\s*$/, ""));
+
+            var multiPublisherStr = "";
+            for (var key in $('#DropDownPublisher').val()) {
+                multiPublisherStr += $('#DropDownPublisher').val()[key] + ",";
+            }
+
+            $("#multiPublisherStr").val(multiPublisherStr.replace(/,\s*$/, ""));
+            getSearchResult();
+        });
+
+        $("#resetBtn").click(function () {
+
+            $.ajax({
+                url: "/Book/ResetSession",
+                method: "POST",
+                success: function () {
+                    window.location.reload();
+                },
+            });
+        });
+
+        $(document).on("click", "#btnPage", function () {
+
+            $("#PageNumber").val($(this).text());
+            getSearchResult()
+        })
+
+        $(document).on("click", "#pre", function () {
+            var previousPage = parseInt($("#PageNumber").val()) - 1;
+            $("#PageNumber").val(previousPage);
+            getSearchResult()
+        })
+        $(document).on("click", "#demoBtn", function () {
+            alert($('#DropDownCategory').val());
+        })
+
+        $(document).on("click", "#next", function () {
+            var nextPage = parseInt($("#PageNumber").val()) + 1;
+            $("#PageNumber").val(nextPage);
+            getSearchResult()
+        })
+
+        $("#pageDrop").change(function () {
+            $("#PageNumber").val(1)
+            getSearchResult();
+        });
+
+
+        function getSearchResult() {
+
+            $.ajax({
+                url: "/Book/Index",
+                method: "POST",
+                data: $("#searchForm").serialize(),
+                success: function (data) {
+                    $("#partial_table").html(data);
+                },
+            });
+        }
+
+    });
+</script>
+
+<form id="searchForm" method="POST">
+    @{
+        List<int> PageList = new List<int>();
+        PageList.Add(10);
+        PageList.Add(5);
+        PageList.Add(3);
+    }
+    <div>
+        <div class="row">
+            <div class="col-xl-2">
+                <div class="card border-0 shadow" style="padding:5px;border-radius:20px;">
+
+                    @Html.TextBoxFor(exp => exp.BookName, null, new { @id = "BookName", @placeholder = "Book Name", @class = "textbox btn btn-round btn-outline btn-fb text-left w-100 mb-3" })
+                    @Html.DropDownListFor(exp => exp.BookCategoryId, new SelectList(Model.GetCategories, "BookCategoryId", "BookCategory"), "SELECT CATEGORY", new { @id = "DropDownCategory", @multiple = "multiple", @class = "btn btn-round btn-outline btn-fb text-left w-100 mb-3" })
+                    @Html.DropDownListFor(exp => exp.BookPublisherId, new SelectList(Model.GetPublishers, "BookPublisherId", "BookPublisher"), "SELECT PUBLISHER", new { @id = "DropDownPublisher", multiple = "multiple", @class = "btn btn-round btn-outline btn-fb text-left w-100 mb-3" })
+                    @Html.DropDownListFor(exp => exp.PageLength, new SelectList(PageList), new { id = "pageDrop", @class = "btn btn-round btn-outline btn-fb text-left w-100 mb-3" })
+
+                    <button type="button" style="margin:10px 0;padding:10px;width:100%;" id="searchBtn" class="searchBtn btn mb-2 mb-md-0 w-100 btn-primary btn-round">
+                        Search
+                    </button>
+                    <button type="button" style="margin:10px 0;padding:10px;width:100%;" id="resetBtn" class="resetBtn btn mb-2 mb-md-0 w-100 btn-primary btn-round">
+                        Reset
+                    </button>
+                   
+                    @Html.HiddenFor(exp => exp.PageNumber, new { })
+                    @Html.HiddenFor(exp => exp.multiCategoryStr, new { })
+                    @Html.HiddenFor(exp => exp.multiPublisherStr, new { })
+                </div>
+                <div class="card border-0 shadow" style="padding:5px;border-radius:20px;margin-top:10px;">
+
+                    <a href="@Url.Action("IssueBookStudent", "IssueBook", new{ id=0})" style="width:100%;" class="issueBtn btn mb-2 mb-md-0 w-100 btn-primary btn-round">Issue Book</a>
+                </div>
+
+
+            </div>
+            <div class="col">
+                <div class="card border-0 shadow" style="border-radius:20px;">
+                    <div class="partial_container" id="partial_table">
+
+                    </div>
+                    <h3><b id="notFound"></b></h3>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</form>
+
+

@@ -1,0 +1,359 @@
+﻿@model LibraryManagementSystem1.Models.BooksModel
+@using LibraryManagementSystem1.Models;
+
+@{
+    ViewBag.Title = "IssueBookStudent";
+}
+
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<link href="~/Content/down.css" rel="stylesheet" />
+<link href="~/Content/down1.css" rel="stylesheet" />
+
+<style>
+
+
+    .center1 {
+        margin: auto;
+        width: 50%;
+        padding: 10px;
+    }
+
+    #removeBtn:hover {
+        cursor: pointer;
+    }
+
+    .block-27 {
+        font-size: 20px;
+        color: black;
+        text-align: center;
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        line-height: 20px;
+        border-radius: 50%;
+        border: 1px solid black;
+    }
+
+    .editBtn img, .deleteBtn img {
+        transition: all 0.1s ease;
+        cursor: pointer;
+    }
+
+        .editBtn img:hover, .deleteBtn img:hover {
+            transform: scale(1.1);
+        }
+
+    .block-27 label {
+        transition: all 0.1s ease;
+        cursor: pointer;
+    }
+
+        .block-27 label:hover {
+            transform: scale(1.1);
+        }
+
+    #pre:hover {
+        cursor: pointer;
+    }
+
+    #btnPage:hover {
+        cursor: pointer;
+    }
+
+    #next:hover {
+        cursor: pointer;
+    }
+
+    .pagination {
+        user-select: none;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    #minus, #plus:hover {
+        cursor: pointer;
+    }
+</style>
+
+<script>
+
+    $(document).on("click", "#addBookBtn", function () {
+        getIssueBookList();
+    })
+
+    function getIssueBookList() {
+
+        $.ajax({
+            url: "/IssueBook/IssueBookListPopup",
+            method: "POST",
+            data: $("#issueForm").serialize(),
+            success: function (data) {
+
+            },
+        });
+    }
+
+</script>
+
+<script>
+    var IssuedBookDict = {};
+    var GetBooksList = @Html.Raw(Json.Encode(Model.GetIssueBookList));
+    var issueId =@Html.Raw(Json.Encode(Model.IssueId));
+    var IssueBookRemoveList = new Array();
+    function defaultDict() {
+        if (issueId > 0) {
+            for (let i = 0; i < GetBooksList.length; i++) {
+                IssuedBookDict[GetBooksList[i].BookId] = [GetBooksList[i].BookName, GetBooksList[i].BookCategoryName, GetBooksList[i].BookPublisherName, GetBooksList[i].BookCount, 0];
+            }
+        }
+    }
+    function createBookList(IssuedBookDict) {
+        var tableSt = '';
+        for (var key in IssuedBookDict) {
+
+            tableSt += '<tr><td id="BookId">' + key + '</td>';
+            tableSt += '<td id="BookName">' + IssuedBookDict[key][0] + '</td>';
+            tableSt += '<td id="BookCategory">' + IssuedBookDict[key][1] + '</td>';
+            tableSt += '<td id="BookPublisher">' + IssuedBookDict[key][2] + '</td>';
+            tableSt += '<td><label  class="block-27" data-bCount=' + IssuedBookDict[key][3]
+                + ' data-id=' + key + ' id="minus">-</label><input style="width:50px;height:30px;font-size:15px;padding:2px;" class="btn btn-round btn-outline mb-3" value='
+                + IssuedBookDict[key][3] + ' type="text" id="BookCount"/><label data-bCount=' + IssuedBookDict[key][3] + ' data-id=' + key + ' class="block-27" id="plus">+</label></td>';
+            tableSt += '<td id="status" style="visibility:hidden;">' + IssuedBookDict[key][4] + '</td>';
+            tableSt += '<td><a id="removeBtn" style="color:blue;" data-id=' + key + ' data-status=' + IssuedBookDict[key][4]+'>Remove</a></td></tr>';
+        }
+        if (Object.keys(IssuedBookDict).length > 0) {
+            document.getElementById("saveBtn").style.visibility = "visible";
+            document.getElementById("cancelBtn").style.visibility = "visible";
+        }
+        else {
+            document.getElementById("saveBtn").style.visibility = "hidden";
+            document.getElementById("cancelBtn").style.visibility = "hidden";
+        }
+        $("#recivedData").html(tableSt);
+    }
+
+    $(document).ready(function () {
+
+        defaultDict();
+        createBookList(IssuedBookDict);
+        
+        $(document).on('click', "#removeBtn", function () {            
+            var BookList = {};          
+            if ($(this).attr("data-status") == 0)
+            {
+                BookList.BookId = $(this).attr("data-id");
+                IssueBookRemoveList.push(BookList);
+            }
+           
+            delete IssuedBookDict[$(this).attr("data-id")];
+            createBookList(IssuedBookDict);
+
+        });
+        $(document).on('click', "#cancelBtn", function () {
+            IssuedBookDict = [];
+            defaultDict();
+            createBookList(IssuedBookDict);
+        });
+
+        $(document).on('click', "#minus", function () {
+
+            if (parseInt($(this).attr("data-bCount")) > 1) {
+                IssuedBookDict[$(this).attr("data-id")][3] = parseInt($(this).attr("data-bCount")) - 1;
+                createBookList(IssuedBookDict);
+            }
+        });
+        $(document).on('click', "#plus", function () {
+
+            IssuedBookDict[$(this).attr("data-id")][3] = parseInt($(this).attr("data-bCount")) + 1;
+            createBookList(IssuedBookDict);
+
+        });
+
+        $(".selectBtn").click(function () {
+            IssuedBookDict[$(this).attr("data-id")] = [$(this).attr("data-name"), $(this).attr("data-category"), $(this).attr("data-publisher"), $(this).attr("data-bookCount"), 1];
+            
+            createBookList(IssuedBookDict);
+        });
+
+    });
+    $(document).on('click', "#saveBtn", function () {
+        @*$("#IssueId").val(issueId);
+        if (issueId == 0) {
+
+            $.ajax({
+                url: "/IssueBook/IssueBookList",
+                method: "POST",
+                data: $("#issueForm").serialize(),
+                success: function (data) {
+                    AddBooksInIssueBook(data.IssueId);
+                },
+            });
+        }
+        else {
+            AddBooksInIssueBook(issueId);
+        }*@
+        @* AddBooksInIssueBook();*@
+        $("#IssueId").val(issueId);
+        var SelectedBooksList = new Array();
+        $("#recivedData tr").each(function () {
+            var row = $(this);
+            var BookList = {};
+
+            BookList.BookId = row.find("#BookId").html();
+            BookList.BookCount = row.find("#BookCount").val();
+            BookList.status = row.find("#status").html();
+            SelectedBooksList.push(BookList);
+        });
+
+        var IssuedDetailList = new Array();
+        var Id = $("#StudentId").val();
+        var Date = $("#IssueDate").val();
+        var Issue = $("#IssueId").val();
+        item = {
+            StudentId: Id,
+            IssueDate: Date,
+            IssueId: Issue
+        };
+
+        IssuedDetailList.push(item);
+
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            //dataType: 'json',
+            url: "/IssueBook/IssueBookList",
+            type: 'POST',
+            data: JSON.stringify({ DetailList: IssuedDetailList, SelectedList: SelectedBooksList, RemoveList: IssueBookRemoveList }),
+            success: function (model) {
+                alert("Issued book Successfully...");
+                location.reload(true);
+            }
+        });
+    });
+
+   @* function AddBooksInIssueBook() {
+        $("#IssueId").val(ID);
+
+     
+        $.ajax({
+            url: "/IssueBook/IssueBookList",
+            method: "POST",
+            data: $("#issueForm").serialize() + "&" + gift,
+            success: function (data) {
+
+            },
+        });
+        for (var key in IssuedBookDict) {
+            
+            $("#BookId").val(key);
+            $("#BookCount").val(IssuedBookDict[key][3]);
+            $("#status").val(IssuedBookDict[key][4]);
+            $.ajax({
+                url: "/IssueBook/IssueBookList",
+                method: "POST",
+                data: $("#issueForm").serialize(),
+                success: function (data) {
+
+                },
+            });
+        }
+
+        alert("Book Issued Successfully...");        
+        
+    }*@
+
+    document.multiselect('#testSelect1');
+</script>
+
+@*Popup for issueBook*@
+<div class="container">
+    <div class="modal" id="bookListModal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Select Book</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <center>
+                    <div class="modal-body">
+                        @Html.Partial("_IssueBookList")
+                    </div>
+                </center>
+
+                <div class="modal-footer">
+                    <div class="float-left">
+                        <button type="button" class="btn btn-round btn-danger" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<center>
+    <h2><b>Issue Books</b></h2>
+
+    <form id="issueForm" method="POST">
+        <div>
+            <div class="row center1">
+                <div class="col">
+
+                    @Html.TextBoxFor(exp => exp.StudentId, null, new { @id = "StudentId", @placeholder = "Student Id", @class = "textbox btn btn-round btn-outline btn-fb text-left w-100 mb-3" })
+
+                </div>
+                <div class="col">
+                    @Html.EditorFor(model => model.IssueDate, new { htmlAttributes = new { @Value = @Model.IssueDate.ToString("yyyy-MM-dd"), @class = "btn btn-round btn-outline btn-fb text-left w-100 mb-3", @type = "date" } })
+
+                </div>
+                <div class="col">
+                    <button type="button" data-target="#bookListModal"
+                            data-toggle="modal" id="addBookBtn" class="addBookBtn btn mb-2 mb-md-0 w-100 btn-primary btn-round" data-backdrop="static" data-keyboard="false">
+                        Add Book
+                    </button>
+                </div>
+
+                @Html.HiddenFor(exp => exp.BookId, new { })
+                @Html.HiddenFor(exp => exp.BookCount, new { })
+                @Html.HiddenFor(exp => exp.IssueId, new { })
+                @Html.HiddenFor(exp => exp.status, new { })
+                <div class="col" style="margin-top:20px;">
+                    <div class="card border-0" style="border-radius:20px;">
+                        <div class="table-responsive custom-table-responsive">
+                            <table id="table" class="table">
+                                <thead style="width:200px;">
+                                    <tr class="">
+                                        <th scope="col">Book Id</th>
+                                        <th scope="col">Book Name</th>
+                                        <th scope="col">Book Category</th>
+                                        <th scope="col">Book Publisher</th>
+                                        <th scope="col">Book Quantity</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recivedData">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row center1">
+                <div class="col"></div>
+                <div class="col">
+                    <button type="button" style="padding:10px;width:50%; visibility:hidden" id="cancelBtn" class="cancelBtn btn mb-md-0 btn-primary btn-round">
+                        Cancel
+                    </button>
+                </div>
+                <div class="col">
+                    <button type="button" style="padding: 10px; width: 50%; visibility: hidden" id="saveBtn" class="saveBtn btn mb-md-0 btn-primary btn-round">
+                        Save
+                    </button>
+                </div>
+                <div class="col"></div>
+            </div>
+        </div>
+    </form>
+</center>

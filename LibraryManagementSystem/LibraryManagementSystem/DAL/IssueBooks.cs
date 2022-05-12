@@ -71,7 +71,7 @@ namespace LibraryManagementSystem1.DAL
         {
             try
             {
-                DbCommand com = this.db.GetStoredProcCommand("SP_IssueBookDetailsUpdate");
+                DbCommand com = this.db.GetStoredProcCommand("InsertUpdateIssuedDetails");
 
                 this.db.AddInParameter(com, "IssueId", DbType.Int32, this.IssueId);
                 this.db.AddInParameter(com, "StudentId", DbType.Int32, this.StudentId);
